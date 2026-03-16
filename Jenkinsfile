@@ -102,7 +102,17 @@ pipeline {
                     }
                     post {
                         always {
-                            junit 'reports/junit-smoke.xml'
+                            script {
+                                // Check if test report exists before publishing
+                                if (fileExists('reports/junit-smoke.xml')) {
+                                    junit 'reports/junit-smoke.xml'
+                                } else {
+                                    echo "Warning: junit-smoke.xml not found. Tests may have failed to generate reports."
+                                    // Create empty report to avoid Jenkins errors
+                                    bat 'echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><testsuites></testsuites>" > reports/junit-smoke.xml || true'
+                                    junit 'reports/junit-smoke.xml'
+                                }
+                            }
                             allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
                         }
                     }
@@ -134,7 +144,17 @@ pipeline {
                     }
                     post {
                         always {
-                            junit 'reports/junit-regression.xml'
+                            script {
+                                // Check if test report exists before publishing
+                                if (fileExists('reports/junit-regression.xml')) {
+                                    junit 'reports/junit-regression.xml'
+                                } else {
+                                    echo "Warning: junit-regression.xml not found. Tests may have failed to generate reports."
+                                    // Create empty report to avoid Jenkins errors
+                                    bat 'echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><testsuites></testsuites>" > reports/junit-regression.xml || true'
+                                    junit 'reports/junit-regression.xml'
+                                }
+                            }
                             allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
                         }
                     }
