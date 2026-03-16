@@ -195,8 +195,9 @@ pipeline {
                                 reportName: 'Allure Test Report'
                             ])
                         } catch (Exception e) {
-                            echo "Warning: Could not publish Allure HTML report."
+                            echo "Warning: HTML Publisher plugin not available. Skipping HTML report publishing."
                             echo "Error: ${e.getMessage()}"
+                            echo "To enable HTML reports, install the HTML Publisher Plugin in Jenkins."
                         }
                     }
                 }
