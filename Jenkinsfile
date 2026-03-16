@@ -113,7 +113,15 @@ pipeline {
                                     junit 'reports/junit-smoke.xml'
                                 }
                             }
-                            allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
+                            // Make Allure reporting optional to avoid plugin errors
+                            script {
+                                try {
+                                    allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
+                                } catch (Exception e) {
+                                    echo "Warning: Allure plugin not configured properly. Skipping Allure reporting."
+                                    echo "Error: ${e.getMessage()}"
+                                }
+                            }
                         }
                     }
                 }
@@ -155,7 +163,15 @@ pipeline {
                                     junit 'reports/junit-regression.xml'
                                 }
                             }
-                            allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
+                            // Make Allure reporting optional to avoid plugin errors
+                            script {
+                                try {
+                                    allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
+                                } catch (Exception e) {
+                                    echo "Warning: Allure plugin not configured properly. Skipping Allure reporting."
+                                    echo "Error: ${e.getMessage()}"
+                                }
+                            }
                         }
                     }
                 }
@@ -165,29 +181,42 @@ pipeline {
         stage('Generate Allure Report') {
             steps {
                 script {
-                    if (isUnix()) {
-                        sh '''
-                            source venv/bin/activate
-                            allure generate reports/allure-results -o reports/allure-report --clean
-                        '''
-                    } else {
-                        bat '''
-                            venv\\Scripts\\activate
-                            allure generate reports\\allure-results -o reports\\allure-report --clean
-                        '''
+                    try {
+                        if (isUnix()) {
+                            sh '''
+                                source venv/bin/activate
+                                allure generate reports/allure-results -o reports/allure-report --clean
+                            '''
+                        } else {
+                            bat '''
+                                venv\\Scripts\\activate
+                                allure generate reports\\allure-results -o reports\\allure-report --clean
+                            '''
+                        }
+                    } catch (Exception e) {
+                        echo "Warning: Allure commandline not available. Skipping Allure report generation."
+                        echo "Error: ${e.getMessage()}"
+                        echo "To fix this, install Allure commandline in Jenkins Global Tool Configuration."
                     }
                 }
             }
             post {
                 always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'reports/allure-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Allure Test Report'
-                    ])
+                    script {
+                        try {
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'reports/allure-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Allure Test Report'
+                            ])
+                        } catch (Exception e) {
+                            echo "Warning: Could not publish Allure HTML report."
+                            echo "Error: ${e.getMessage()}"
+                        }
+                    }
                 }
             }
         }
