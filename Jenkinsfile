@@ -113,15 +113,6 @@ pipeline {
                                     junit 'reports/junit-smoke.xml'
                                 }
                             }
-                            // Make Allure reporting optional to avoid plugin errors
-                            script {
-                                try {
-                                    allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
-                                } catch (Exception e) {
-                                    echo "Warning: Allure plugin not configured properly. Skipping Allure reporting."
-                                    echo "Error: ${e.getMessage()}"
-                                }
-                            }
                         }
                     }
                 }
@@ -161,15 +152,6 @@ pipeline {
                                     // Create empty report to avoid Jenkins errors
                                     bat 'echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><testsuites></testsuites>" > reports/junit-regression.xml || true'
                                     junit 'reports/junit-regression.xml'
-                                }
-                            }
-                            // Make Allure reporting optional to avoid plugin errors
-                            script {
-                                try {
-                                    allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
-                                } catch (Exception e) {
-                                    echo "Warning: Allure plugin not configured properly. Skipping Allure reporting."
-                                    echo "Error: ${e.getMessage()}"
                                 }
                             }
                         }
