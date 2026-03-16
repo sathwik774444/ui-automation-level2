@@ -102,7 +102,7 @@ pipeline {
                     }
                     post {
                         always {
-                            publishTestResults testResultsPattern: 'reports/junit-smoke.xml'
+                            junit 'reports/junit-smoke.xml'
                             allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
                         }
                     }
@@ -134,7 +134,7 @@ pipeline {
                     }
                     post {
                         always {
-                            publishTestResults testResultsPattern: 'reports/junit-regression.xml'
+                            junit 'reports/junit-regression.xml'
                             allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
                         }
                     }
